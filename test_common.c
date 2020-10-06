@@ -168,7 +168,9 @@ int main(int argc, char **argv)
             rmcrlf(word);
             t1 = tvgetf();
 
+            // 用 bloom filter 判斷是否在 tree 內
             if (bloom_test(bloom, word)) {
+                // version1: bloom filter 偵測到在裡面就不走下去
                 t2 = tvgetf();
                 printf("  Bloomfilter found %s in %.6f sec.\n", word, t2 - t1);
                 printf(
@@ -176,6 +178,9 @@ int main(int argc, char **argv)
                     pow(1 - exp(-(double) HashNumber /
                                 (double) ((double) TableSize / (double) idx)),
                         HashNumber));
+
+                // version2: bloom filter 偵測到在裡面，就去走 tree
+                // (防止偵測錯誤)
                 t1 = tvgetf();
                 res = tst_search(root, word);
                 t2 = tvgetf();
